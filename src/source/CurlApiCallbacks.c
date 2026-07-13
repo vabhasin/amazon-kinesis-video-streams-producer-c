@@ -2275,12 +2275,17 @@ CleanUp:
             kinesisVideoStreamTerminated(streamHandle, uploadHandle, callResult);
         }
 
-        // Bubble the notification to potential listeners
+        // Bubble the notification to potential listeners for non-retriable, non-recoverable errors.
+        // For auth errors (403/401), notify with the actual HTTP error status.
+        // For retriable/recoverable errors, fall through to notify with retStatus (preserves original behavior).
         if (callResult != SERVICE_CALL_RESULT_OK && callResult != SERVICE_CALL_RESULT_NOT_SET) {
-            // notify listeners with actual result from the curl response if service call was successful
-            notifyCallResult(pCallbacksProvider, serviceCallResultCheck(callResult), streamHandle);
+            STATUS callStatus = serviceCallResultCheck(callResult);
+            if (!IS_RETRIABLE_ERROR(callStatus) && !IS_RECOVERABLE_ERROR(callStatus)) {
+                notifyCallResult(pCallbacksProvider, callStatus, streamHandle);
+            } else {
+                notifyCallResult(pCallbacksProvider, retStatus, streamHandle);
+            }
         } else {
-            // notify with general return status of the operation
             notifyCallResult(pCallbacksProvider, retStatus, streamHandle);
         }
     }
