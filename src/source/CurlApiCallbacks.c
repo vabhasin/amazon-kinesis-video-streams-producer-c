@@ -2286,6 +2286,7 @@ CleanUp:
                 notifyCallResult(pCallbacksProvider, retStatus, streamHandle);
             }
         } else {
+            // notify with general return status of the operation
             notifyCallResult(pCallbacksProvider, retStatus, streamHandle);
         }
     }
