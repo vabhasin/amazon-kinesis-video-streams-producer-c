@@ -11,6 +11,12 @@ on:
       - reopened
       - edited
 
+# This workflow is pull_request-only, so a new push or description edit always
+# supersedes the previous run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
